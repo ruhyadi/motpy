@@ -21,6 +21,9 @@ _video source: <https://motchallenge.net/data/MOT16/> - sequence 11_
 
 ```bash
 pip install motpy
+
+# install from source
+pip install motpy@git+https://github.com/ruhyadi/motpy.git
 ```
 
 #### Additional installation steps on Raspberry Pi

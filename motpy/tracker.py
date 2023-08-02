@@ -82,6 +82,9 @@ class SingleObjectTracker:
         self.class_id_counts: Dict = dict()
         self.class_id: Optional[int] = self.update_class_id(class_id0)
 
+        self.action: Optional[str] = None
+        self.kpts: Optional[Vector] = None
+
         logger.debug(f'creating new tracker {self.id}')
 
     def box(self) -> Box:
@@ -120,6 +123,8 @@ class SingleObjectTracker:
         self.class_id = self.update_class_id(detection.class_id)
         self.score = self.update_score_fn(old=self.score, new=detection.score)
         self.feature = self.update_feature_fn(old=self.feature, new=detection.feature)
+        self.action = detection.action
+        self.kpts = detection.kpts
 
         # reduce the staleness of a tracker, faster than growth rate
         self.unstale(rate=3)
@@ -372,7 +377,17 @@ class MultiObjectTracker:
             cond2 = tracker.staleness < max_staleness
             cond3 = tracker.steps_alive >= min_steps_alive
             if cond1 and cond2 and cond3:
-                tracks.append(Track(id=tracker.id, box=tracker.box(), score=tracker.score, class_id=tracker.class_id))
+                tracks.append(
+                    Track(
+                        id=tracker.id,
+                          box=tracker.box(), 
+                          score=tracker.score, 
+                          class_id=tracker.class_id,
+                          feature=tracker.feature,
+                          action=tracker.action,
+                          kpts=tracker.kpts,
+                        )
+                    )
 
         logger.debug('active/all tracks: %d/%d' % (len(self.trackers), len(tracks)))
         return tracks
