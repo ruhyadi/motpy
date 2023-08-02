@@ -14,8 +14,29 @@ Box = np.ndarray
 # Vector is of shape (1, N)
 Vector = np.ndarray
 
+
 # Track is meant as an output from the object tracker
-Track = collections.namedtuple('Track', 'id box score class_id')
+class Track:
+    def __init__(
+        self,
+        id: int,
+        box: Box,
+        score: Optional[float] = None,
+        class_id: Optional[int] = None,
+        feature: Optional[Vector] = None,
+        action: Optional[str] = None,
+        kpts: Optional[Vector] = None,
+    ):
+        self.id = id
+        self.box = box
+        self.score = score
+        self.class_id = class_id
+        self.feature = feature
+        self.action = action
+        self.kpts = kpts
+
+    def __repr__(self):
+        return f"Track(id={self.id}, box={self.box}, score={self.score:.5f}, class_id={self.class_id}, feature={self.feature}, action={self.action}, kpts={self.kpts})"
 
 
 # numpy/opencv image alias
@@ -24,18 +45,23 @@ NpImage = np.ndarray
 
 class Detection:
     def __init__(
-            self,
-            box: Box,
-            score: Optional[float] = None,
-            class_id: Optional[int] = None,
-            feature: Optional[Vector] = None):
+        self,
+        box: Box,
+        score: Optional[float] = None,
+        class_id: Optional[int] = None,
+        feature: Optional[Vector] = None,
+        action: Optional[str] = None,
+        kpts: Optional[np.ndarray] = None,
+    ):
         self.box = box
         self.score = score
         self.class_id = class_id
         self.feature = feature
+        self.action = action
+        self.kpts = kpts
 
     def __repr__(self):
-        return f'Detection(box={self.box}, score={self.score:.5f}, class_id={self.class_id}, feature={self.feature})'
+        return f"Detection(box={self.box}, score={self.score:.5f}, class_id={self.class_id}, feature={self.feature}, action={self.action}, kpts={self.kpts})"
 
 
 """ utils """
@@ -43,16 +69,18 @@ class Detection:
 LOG_FORMAT = "%(asctime)s\t%(threadName)s-%(name)s:%(levelname)s:%(message)s"
 
 
-def setup_logger(name: str,
-                 level: Optional[str] = None,
-                 is_main: bool = False,
-                 envvar_name: str = 'MOTPY_LOG_LEVEL'):
+def setup_logger(
+    name: str,
+    level: Optional[str] = None,
+    is_main: bool = False,
+    envvar_name: str = "MOTPY_LOG_LEVEL",
+):
     if level is None:
         level = os.getenv(envvar_name)
         if level is None:
-            level = 'INFO'
+            level = "INFO"
         else:
-            print(f'[{name}] envvar {envvar_name} sets log level to {level}')
+            print(f"[{name}] envvar {envvar_name} sets log level to {level}")
 
     level_val = logging.getLevelName(level)
 
